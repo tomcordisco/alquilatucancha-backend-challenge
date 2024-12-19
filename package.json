@@ -29,6 +29,7 @@
     "@nestjs/platform-fastify": "9.0.11",
     "moment": "2.29.4",
     "nestjs-zod": "1.2.1",
+    "redis": "4.7.0",
     "reflect-metadata": "0.1.13",
     "rimraf": "3.0.2",
     "rxjs": "7.2.0"
@@ -37,6 +38,7 @@
     "@nestjs/cli": "9.0.0",
     "@nestjs/schematics": "9.0.0",
     "@nestjs/testing": "9.0.0",
+    "@types/ioredis": "5.0.0",
     "@types/jest": "28.1.4",
     "@types/node": "16.0.0",
     "@types/supertest": "2.0.11",
@@ -58,7 +60,7 @@
     "typescript": "4.3.5"
   },
   "engines": {
-    "node": "16.17.0"
+    "node": "16.17.1"
   },
   "jest": {
     "moduleFileExtensions": [

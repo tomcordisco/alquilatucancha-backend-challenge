@@ -3,6 +3,7 @@ import { QueryBus } from '@nestjs/cqrs';
 import * as moment from 'moment';
 import { createZodDto, ZodValidationPipe } from 'nestjs-zod';
 import { z } from 'nestjs-zod/z';
+import { RedisService } from '../service/redis.service';
 
 import {
   ClubWithAvailability,
@@ -22,15 +23,34 @@ class GetAvailabilityDTO extends createZodDto(GetAvailabilitySchema) {}
 
 @Controller('search')
 export class SearchController {
-  constructor(private queryBus: QueryBus) {}
+  constructor(
+    private readonly queryBus: QueryBus,
+    private readonly redisService: RedisService,
+  ) {}
 
   @Get()
   @UsePipes(ZodValidationPipe)
-  searchAvailability(
+  async searchAvailability(
     @Query() query: GetAvailabilityDTO,
   ): Promise<ClubWithAvailability[]> {
-    return this.queryBus.execute(
+    const cacheKey = `search:${query.placeId}:${moment(query.date).format(
+      'YYYY-MM-DD',
+    )}`;
+
+    const cachedData = await this.redisService.get(cacheKey);
+    if (cachedData) {
+      console.log(`[SearchController] Cache hit for key: ${cacheKey}`);
+      return cachedData;
+    }
+
+    console.log(`[SearchController] Cache miss for key: ${cacheKey}`);
+
+    const result = await this.queryBus.execute(
       new GetAvailabilityQuery(query.placeId, query.date),
     );
+
+    await this.redisService.set(cacheKey, result, 300); 
+
+    return result;
   }
 }
